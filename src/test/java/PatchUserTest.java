@@ -1,4 +1,5 @@
 import client.UserClient;
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -21,7 +22,7 @@ public class PatchUserTest {
     @DisplayName("Update user name with auth")
     public void patchUserNameWithAuth() {
         UserClient userClient = new UserClient();
-        User user = new User("test-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru", "1234", "saske");
+        User user = getSimpleUserObject();
         Response response = userClient.getCorrectUserCreationResponse(user);
 
         response.then().statusCode(200);
@@ -39,7 +40,7 @@ public class PatchUserTest {
     @DisplayName("Update user email with auth")
     public void patchUserEmailWithAuth() {
         UserClient userClient = new UserClient();
-        User user = new User("test-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru", "1234", "saske");
+        User user = getSimpleUserObject();
         Response response = userClient.getCorrectUserCreationResponse(user);
 
         response.then().statusCode(200);
@@ -47,7 +48,7 @@ public class PatchUserTest {
 
         String accessToken = response.getBody().path("accessToken");
 
-        user.setEmail("new-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru");
+        user.setEmail(getNewEmail());
         response = userClient.getPatchUserResponse(user, accessToken);
         assertEquals("Тело ответа: " + response.asString(), 200, response.statusCode());
         assertTrue(response.body().path("success"));
@@ -57,7 +58,7 @@ public class PatchUserTest {
     @DisplayName("Update user password with auth")
     public void patchUserPasswordWithAuth() {
         UserClient userClient = new UserClient();
-        User user = new User("test-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru", "1234", "saske");
+        User user = getSimpleUserObject();
         Response response = userClient.getCorrectUserCreationResponse(user);
 
         response.then().statusCode(200);
@@ -75,7 +76,7 @@ public class PatchUserTest {
     @DisplayName("Update user name without auth")
     public void patchUserNameWithNoAuthTest() {
         UserClient userClient = new UserClient();
-        User user = new User("test-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru", "1234", "saske");
+        User user =getSimpleUserObject();
         Response response = userClient.getCorrectUserCreationResponse(user);
 
         response.then().statusCode(200);
@@ -91,24 +92,25 @@ public class PatchUserTest {
     @DisplayName("Update user email without auth")
     public void patchUserEmailWithNoAuthTest() {
         UserClient userClient = new UserClient();
-        User user = new User("test-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru", "1234", "saske");
+        User user = getSimpleUserObject();
         Response response = userClient.getCorrectUserCreationResponse(user);
 
         response.then().statusCode(200);
         response.then().body("success", equalTo(true));
 
-        user.setEmail("new-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru");
+        user.setEmail(getNewEmail());
 
         response = userClient.getPatchUserResponseWithNoAccessToken(user);
         assertEquals("Тело ответа: " + response.asString(), 401, response.statusCode());
         assertFalse(response.body().path("success"));
     }
 
+
     @Test
     @DisplayName("Update user name data without auth")
     public void patchUserPasswordWithNoAuthTest() {
         UserClient userClient = new UserClient();
-        User user = new User("test-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru", "1234", "saske");
+        User user = getSimpleUserObject();
         Response response = userClient.getCorrectUserCreationResponse(user);
 
         response.then().statusCode(200);
@@ -118,5 +120,13 @@ public class PatchUserTest {
         response = userClient.getPatchUserResponseWithNoAccessToken(user);
         assertEquals("Тело ответа: " + response.asString(), 401, response.statusCode());
         assertFalse(response.body().path("success"));
+    }
+    @Step("Get simple User object")
+    private User getSimpleUserObject() {
+        return new User("test-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru", "1234", "name");
+    }
+    @Step("Get new email string")
+    private String getNewEmail(){
+        return "new-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru";
     }
 }

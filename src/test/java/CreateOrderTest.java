@@ -1,5 +1,6 @@
 import client.OrderClient;
 import client.UserClient;
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -26,7 +27,7 @@ public class CreateOrderTest {
     @DisplayName("Check correct order creation with auth")
     public void correctOrderCreationWithAuthTest() {
         UserClient userClient = new UserClient();
-        User user = new User("test-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru", "1234", "saske");
+        User user = getSimpleUserObject();
         Response response = userClient.getCorrectUserCreationResponse(user);
 
         response.then().statusCode(200);
@@ -84,5 +85,9 @@ public class CreateOrderTest {
         Response response = orderClient.getCreationOrderResponseWithNoAuth(ingredients);
 
         assertEquals(400, response.statusCode());
+    }
+    @Step("Get simple User object")
+    private User getSimpleUserObject(){
+        return new User("test-email" + ThreadLocalRandom.current().nextInt(0, 9999999) + "@yandex.ru", "1234", "name");
     }
 }
